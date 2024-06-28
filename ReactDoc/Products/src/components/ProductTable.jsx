@@ -6,6 +6,7 @@ import React from "react";
 
 const ProductTable = ({ products }) => {
   let category = "";
+  let newCategory = false;
 
   return (
     <table>
@@ -16,13 +17,14 @@ const ProductTable = ({ products }) => {
       {products.map((product) => {
         if (category !== product.category) {
           category = product.category;
+          newCategory = true;
+        } else {
+          newCategory = false;
         }
 
         return (
           <React.Fragment key={product.name}>
-            {category !== product.category && (
-              <ProductCategoryRow category={category} />
-            )}
+            {newCategory && <ProductCategoryRow category={category} />}
             <ProductRow
               price={product.price}
               stocked={product.stocked}
