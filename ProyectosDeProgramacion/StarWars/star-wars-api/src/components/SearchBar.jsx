@@ -1,26 +1,22 @@
-import PropTypes from "prop-types";
 import { Input } from "@chakra-ui/react";
+import { useValueState } from "../hooks/useValueState";
 
-const SearchBar = ({ value, setValue }) => {
-  const handleChange = (e) => {
-    setValue(e.target.value);
-  };
+// eslint-disable-next-line react/prop-types
+const SearchBar = ({ action = null }) => {
+  const { data, setData } = useValueState(action);
 
   return (
     <>
       <Input
         placeholder="Search people.."
         type="search"
-        value={value}
-        onChange={handleChange}
+        value={data}
+        onChange={(e) => {
+          setData(e.target.value);
+        }}
       />
     </>
   );
-};
-
-SearchBar.propTypes = {
-  value: PropTypes.string,
-  setValue: PropTypes.func,
 };
 
 export default SearchBar;

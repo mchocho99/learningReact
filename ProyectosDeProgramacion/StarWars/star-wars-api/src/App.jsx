@@ -1,45 +1,64 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+
+import { actions, AppContext } from "./context/AppContext";
+
+import { getPeople } from "./api/StarWarsApi";
+
+import { useApi } from "./hooks/useApi";
+import { useData } from "./hooks/useData";
 
 import List from "./components/List";
 import SearchBar from "./components/SearchBar";
 
-import { Spinner } from "@chakra-ui/react";
-
-import { getPeople } from "./api/StarWarsApi";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Spinner,
+} from "@chakra-ui/react";
 
 import "./App.css";
 
 function App() {
-  const [loading, setLoading] = useState(false);
-  const [people, setPeople] = useState(null);
-  const [peopleFiltered, setPeopleFiltered] = useState([]);
-  const [filter, setFilter] = useState("");
+  const { state: filter } = useContext(AppContext);
+  const { response, loading, error } = useApi(getPeople);
+  const { data, setData } = useData(response);
 
   useEffect(() => {
-    setLoading(true);
-
-    getPeople().then((response) => {
-      setLoading(false);
-      setPeople(response.data.results);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (filter) {
-      setPeopleFiltered(people.filter((p) => p.name === filter));
-    } else {
-      setPeopleFiltered(people);
+    if (filter && data) {
+      const filtered = data.filter((d) => d.name === filter);
+      console.log(filtered);
+      setData([]);
     }
-  }, [filter, people]);
+  }, [filter]);
 
   return (
     <>
       {loading ? (
         <Spinner />
+      ) : error ? (
+        <>
+          <Alert
+            status="error"
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="200px"
+          >
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+              Error Ocurred
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">{error}.</AlertDescription>
+          </Alert>
+        </>
       ) : (
         <>
-          <SearchBar value={filter} setValue={setFilter} />
-          {peopleFiltered && <List people={peopleFiltered} />}
+          <SearchBar action={actions.SET_FILTER} />
+          {data && <List people={data} />}
         </>
       )}
     </>
