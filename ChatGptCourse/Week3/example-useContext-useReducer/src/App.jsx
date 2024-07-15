@@ -1,46 +1,47 @@
 import { useContext } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import { AppContext, actions } from "./context/AppContext";
-import DecrementButton from "./components/DecrementButton";
+
+import { useSelector, useDispatch } from "react-redux";
+
+import { actions, PeopleContext } from "./context/People";
+
+import { getPeople } from "./redux/peopleSlice";
+
+import { useFetchDataStore } from "./hooks/useFetchDataStore";
+
+import { getPeopleURL } from "./api";
+
+import List from "./components/List";
+
+import { Box } from "@mui/material";
+
 import "./App.css";
-import SetValueForm from "./components/SetValueForm";
 
 function App() {
-  const { state, dispatch } = useContext(AppContext);
-  const { count } = state;
+  // const { dispatch } = useContext(PeopleContext);
+  // const { response, loading, error } = useFetchDataStore(
+  //   getPeopleURL,
+  //   dispatch,
+  //   actions.GET_PEOPLE
+  // );
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button
-          onClick={() => {
-            dispatch({ type: actions.INCREMENT });
-          }}
-        >
-          count is {count}
-        </button>
-        <DecrementButton />
-        <br />
-        <SetValueForm />
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+  const dispatchRedux = useDispatch();
+
+  const { response, loading, error } = useFetchDataStore(
+    getPeopleURL,
+    dispatchRedux,
+    null,
+    getPeople
   );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error</div>;
+  }
+
+  return <Box>{response && response.results && <List />}</Box>;
 }
 
 export default App;
